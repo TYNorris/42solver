@@ -1,4 +1,4 @@
-from hitchhiker.bones import Suits
+from src.dominoes import Suits
 
 
 class Combination( object ):
@@ -50,7 +50,7 @@ class Fraction( object ):
 
 class playEvaluation( object ):
     ''' This obejct can be used by any player to calculate legal/winning plays from their hand '''
-    def __init__(self, trump, objective):
+    def __init__(self, trump):
         self.trump = trump
         self.played = []   #Dominoes which are already out
 
@@ -78,8 +78,8 @@ class playEvaluation( object ):
     def findWinningPlays(self, suit):
         trickSuit = suit
 
-    def addPlayedDomino(self, bone):
-        self.played.append(bone)
+    def addPlayedDomino(self, domino ):
+        self.played.append(domino )
 
 
 class bidEvaluation( object ):
@@ -88,45 +88,46 @@ class bidEvaluation( object ):
         self.trump = trump
 
     def evaluate(self):
+        print(f'For {self.trump.identity}')
         self.trumpControl = self.controlProbability(self.trump)
-        print self.trumpControl
-        self.calculateOffs()
-        print self.offs
-        self.calculateLeadingOffs()
-        print self.leadingOffs
+        print(f'- Control Probability: {self.trumpControl[0]:3}')
+        print(f'- Majority Probability: {self.trumpControl[1]:3}')
+        # self.calculateOffs()
+        # print(self.offs)
+        # self.calculateLeadingOffs()
+        # print(self.leadingOffs)
         
-    def distribute(self, bones, h1, h2, h3, nleads, trumps):
+    def distribute(self, dominoes, h1, h2, h3, nleads, trumps):
         """ Calculates all possible hands with the remaining trumps, figuring out which hands can wrest control from the bidder's hand. """
         # case A: studied hand CONTROLS the trumps
         # case B: studied hand has MORE trumps than any other player
         # total : counter for total number of possible hands
-        if (len(bones) > 0):
+        if (len(dominoes) > 0):
             control = 0
             more = 0
             total = 0
             hand = h1[:]
-            dominoes = bones[:]
-            bone = dominoes.pop()
-            hand.append(bone)
+            dominoes = dominoes[:]
+            domino  = dominoes.pop()
+            hand.append(domino )
             result = self.distribute(dominoes, hand, h2, h3, nleads, trumps)
             control += result[0]
             more += result[1]
             total += result[-1]
             hand = h2[:]
-            hand.append(bone)
+            hand.append(domino )
             result = self.distribute(dominoes, h1, hand, h3, nleads, trumps)
             control += result[0]
             more += result[1]
             total += result[-1]
             hand = h3[:]
-            hand.append(bone)
+            hand.append(domino )
             result = self.distribute(dominoes, h1, h2, hand, nleads, trumps)
             control += result[0]
             more += result[1]
             total += result[-1]
             return [control, more, total]
         else:
-            #print h1, h2, h3
             A = 1
             B = 1
             T = 1
@@ -160,13 +161,13 @@ class bidEvaluation( object ):
         """Returns the probability that the given hand controls a suit given a trump suit"""
         '''
             inputs:
-            hand = list[] of bone objects
+            hand = list[] of domino  objects
             suit = the suit in question
             trump = the trump to assume for this calculation
     
-            bone is a structure containing
-                bone.t - integer representing the top suit
-                bone.b - integer representing the bottom suit
+            domino  is a structure containing
+                domino .t - integer representing the top suit
+                domino .b - integer representing the bottom suit
 
             returns:
                 a list of normalized probabilities that the given hand
@@ -184,11 +185,11 @@ class bidEvaluation( object ):
         # List containing ranks of the dominoes in the hand within the suit
 
         if (suit.value == self.trump.value):
-            for b in self.hand.bones:
+            for b in self.hand.dominoes:
                 if self.trump.includes(b):
                     hand_rank.append(b.rank[self.trump.value])
         else:
-            for b in self.hand.bones:
+            for b in self.hand.dominoes:
                 if (suit.includes(b) and not(self.trump.includes(b))):
                     hand_rank.append(b.rank[suit.value])
 
@@ -236,7 +237,7 @@ class bidEvaluation( object ):
         '''
 
         input:
-            hand : list of bones in the player's hand
+            hand : list of dominoes in the player's hand
             trump : trump suit
 
         output:
@@ -248,7 +249,7 @@ class bidEvaluation( object ):
         offs = {}
         for s in [Suits['blanks'], Suits['ones'], Suits['twos'], Suits['threes'], Suits['fours'], Suits['fives'], Suits['sixes']]:
             off = 0
-            for b in self.hand.bones:
+            for b in self.hand.dominoes:
                 if (s.includes(b) and not(self.trump.includes(b))):
                     off += 1
             if s.value == self.trump.value:
@@ -261,7 +262,7 @@ class bidEvaluation( object ):
         '''
 
         input:
-            hand : list of bones in the player's hand
+            hand : list of dominoes in the player's hand
             trump : trump suit
 
         output:
@@ -275,7 +276,7 @@ class bidEvaluation( object ):
         offs = {}
         for s in [Suits['blanks'],Suits['ones'],Suits['twos'],Suits['threes'],Suits['fours'],Suits['fives'],Suits['sixes']]:
             off = 0
-            for b in self.hand.bones:
+            for b in self.hand.dominoes:
                 if (s.includes(b) and not(self.trump.includes(b))):
                     if (b.rank[s.value] <= s.value):
                         off += 1
@@ -284,12 +285,12 @@ class bidEvaluation( object ):
             offs[s.value] = off
         self.leadingOffs = offs
 
-    def calcVulnerability(self, trump, bone):
+    def calcVulnerability(self, trump, domino ):
         totalWays = 0
         leadingWays = 0
-        if not(trump.includes(bone)):
+        if not(trump.includes(domino )):
             for s in [Suits['blanks'], Suits['ones'], Suits['twos'], Suits['threes'], Suits['fours'], Suits['fives'], Suits['sixes']]:
-                if (s.includes(bone)):
+                if (s.includes(domino )):
                     totalWays += self.offs[s.value]
                     leadingWays += self.leadingOffs[s.value]
 

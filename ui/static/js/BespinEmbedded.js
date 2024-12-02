@@ -2784,7 +2784,7 @@ if (require.loader) {
   exports.args = require.loader.ARGV;
 }
 
-var print = function(msg) { tiki.console.log(msg); };
+var print= function(msg) { tiki.console.log(msg); };
 exports.print = print;
 
 var K = function() { return null; };

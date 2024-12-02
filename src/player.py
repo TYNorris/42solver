@@ -1,5 +1,5 @@
 
-from hitchhiker.util import shuffle
+from src.util import shuffle
 
 class Player( object ):
     """A player."""

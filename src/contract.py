@@ -15,8 +15,8 @@ class Contract( object ):
     def adjudicate( self, trick, player, play ):
         """Determine the result of the specified play in the specified trick."""
 
-    def identify( self, trick, bone ):
-        """Identifies the suit and trump status of the specified bone in the specified trick."""
+    def identify( self, trick, domino  ):
+        """Identifies the suit and trump status of the specified domino  in the specified trick."""
 
 class TrumpContract( Contract ):
     """A trumps contract."""
@@ -33,28 +33,28 @@ class TrumpContract( Contract ):
         if play.trump:
             if trick.suit is trump:
                 play.role = 'suit'
-                if trump.higher( play.bone, winner.bone ):
+                if trump.higher( play.domino , winner.domino  ):
                     trick.winning_play, trick.winning_player = play, player
             else:
                 play.role = 'trump'
-                if not winner.trump or trump.higher( play.bone, winner.bone ):
+                if not winner.trump or trump.higher( play.domino , winner.domino  ):
                     trick.winning_play, trick.winning_player = play, player
         elif play.suit is trick.suit:
             play.role = 'suit'
-            if not winner.trump and trick.suit.higher( play.bone, winner.bone ):
+            if not winner.trump and trick.suit.higher( play.domino , winner.domino  ):
                 trick.winning_play, trick.winning_player = play, player
         else:
             play.role = 'off'
         
-    def identify( self, trick, bone ):
-        """Identifies the suit and trump status of the specified bone in the specified trick."""
+    def identify( self, trick, domino  ):
+        """Identifies the suit and trump status of the specified domino  in the specified trick."""
 
-        if self.trump.includes( bone ):
+        if self.trump.includes( domino  ):
             return self.trump, True
-        elif trick.suit and trick.suit.includes( bone ):
+        elif trick.suit and trick.suit.includes( domino  ):
             return trick.suit, False
         else:
-            return bone.suits[ 0 ], False
+            return domino .suits[ 0 ], False
 
 class NoTrumpContract( Contract ):
     """A no trump contract."""
@@ -70,16 +70,16 @@ class NoTrumpContract( Contract ):
         winner = trick.winning_play
         if play.suit in trick.suit:
             play.role = 'suit'
-            if trick.suit.higher( play.bone, winner.bone ):
+            if trick.suit.higher( play.domino , winner.domino  ):
                 trick.winning_play, trick.winning_player = play, player
         else:
             play.role = 'off'
 
-    def identify( self, trick, bone ):
-        """Identifies the suit and trump status of the specified bone in the specified trick."""
+    def identify( self, trick, domino  ):
+        """Identifies the suit and trump status of the specified domino  in the specified trick."""
 
-        if trick.suit and trick.suit.includes( bone ):
+        if trick.suit and trick.suit.includes( domino  ):
             return trick.suit, False
         else:
-            return bone.suits[ 0 ], False
+            return domino .suits[ 0 ], False
 

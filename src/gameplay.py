@@ -1,9 +1,8 @@
 
-from hitchhiker.bones import RandomDeck, Suits, Bones
-from hitchhiker.contract import Bid, TrumpContract
-from hitchhiker.util import reorder, shuffle
-from hitchhiker.evaluate import *
-#from hitchhiker.evaluate import controlProbability, calculateOffs, calculateLeadingOffs, calcBid
+from src.dominoes import RandomDeck, Suits, Dominoes
+from src.contract import Bid, TrumpContract
+from src.util import reorder, shuffle
+from src.evaluate import *
 
 class Player( object ):
     """A player in a particular game."""
@@ -23,45 +22,45 @@ class Player( object ):
     def __str__( self ):
         return self.name
 
-    def offer( self, round ):
+    def offer( self, round ) -> Bid:
         """Offer a bid for the specified round."""
 
-        print
-        print '%s has: %s' % ( self.name, self.hand.dump() )
-        print '                             : CONTROL : MAJORITY'
+        print('')
+        print('                             : CONTROL : MAJORITY')
         evaluation = []
         for s in [Suits['blanks'], Suits['ones'], Suits['twos'], Suits['threes'], Suits['fours'], Suits['fives'], Suits['sixes']]:
             evaluation.append(bidEvaluation(self.hand, s))
             evaluation[-1].evaluate()
 
             '''
-            print '5:5 vulnarability : ', calcVulnerability(offs, leadingOffs, s, Bones[(5, 5)]())
-            print '6:4 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Bones[(6, 4)]())
-            print controlProbability(self.hand, Suits['fours'], s)
-            print controlProbability(self.hand, Suits['sixes'], s)
-            print '4:1 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Bones[(4, 1)]())
-            print '3:2 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Bones[(3, 2)]())
-            print '5:0 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Bones[(5, 0)]())
+            print('5:5 vulnarability : ', calcVulnerability(offs, leadingOffs, s, Dominoes[(5, 5)]()))
+            print('6:4 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Dominoes[(6, 4)]()))
+            print(controlProbability(self.hand, Suits['fours'], s))
+            print(controlProbability(self.hand, Suits['sixes'], s))
+            print('4:1 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Dominoes[(4, 1)]()))
+            print('3:2 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Dominoes[(3, 2)]()))
+            print('5:0 vulnerability : ', calcVulnerability(offs, leadingOffs, s, Dominoes[(5, 0)]()))
             '''
+        print('%s has: %s' % ( self.name, self.hand.dump() ))
         #bid = []
         #for e in evaluation:
         #    bid.append(e[0], calcBid(e))
-        bid = raw_input( 'Bid (enter to pass): ' )
+        bid = input( 'Bid (enter to pass): ' )
         if bid:
-            trump = raw_input( 'Trump: ' )
+            trump = input( 'Trump: ' )
             return Bid( self, TrumpContract( Suits[ trump ] ), int( bid ) )
 
     def play( self, trick ):
-        """Plays a bone in the specified trick."""
+        """Plays a domino  in the specified trick."""
 
-        print
-        print 'trick is: %s' % ( trick.dump() )
-        print '%s has: %s' % ( self.name, self.hand.dump() )
-        #print 'legal moves are %s' % ( self.
-        identity = eval( raw_input( 'Play: ' ) )
+        print()
+        print('trick is: %s' % ( trick.dump() ))
+        print('%s has: %s' % ( self.name, self.hand.dump() ))
 
-        bone = self.hand.play( identity )
-        return bone       
+        identity = eval( input( 'Play: ' ) )
+
+        domino  = self.hand.play( identity )
+        return domino        
 
 class Team( object ):
     """A team in a particular game."""
@@ -73,7 +72,7 @@ class Team( object ):
         self.players = []
 
     def __repr__( self ):
-        return 'Team( %s: %s )' % ( self.name, ', '.join([ str( player ) for player in  self.players ]) )
+        return 'Team(%s: %s)' % ( self.name, ', '.join([ str( player ) for player in  self.players ]) )
 
     def __str__( self ):
         return self.name
@@ -92,42 +91,42 @@ class Team( object ):
         self.players.append( Player( self, name, controller ) )
 
 class Hand( object ):
-    """A hand of bones for a particular round."""
+    """A hand of Dominoes for a particular round."""
 
     def __init__( self, round, player, hand ):
         """Constructor."""
 
-        self.bones = hand
-        self.hand = dict( ( bone.identity, bone ) for bone in hand )
+        self.dominoes = hand
+        self.hand = dict( ( domino .identity, domino  ) for domino  in hand )
         self.player = player
         self.round = round
 
     def __repr__( self ):
         """String representation."""
 
-        bones = ' '.join([ repr( bone ) for bone in self.bones ])
-        return 'Hand( %s %s )' % ( self.player, bones )
+        Dominoes = ' '.join([ repr( domino  ) for domino  in self.dominoes ])
+        return 'Hand( %s %s )' % ( self.player, Dominoes )
 
     def dump( self ):
-        """ Prints a String representation for the bones left in the hand. """
-        return ' '.join([ repr( bone ) for bone in self.hand.itervalues() ])
+        """ Prints a String representation for the Dominoes left in the hand. """
+        return ' '.join([ repr( domino  ) for domino  in self.hand ])
 
     def play( self, identity ):
-        """Plays a bone from this hand."""
+        """Plays a domino  from this hand."""
 
-        bone = self.hand.pop( identity, None )
-        if bone:
-            return bone
+        domino  = self.hand.pop( identity, None )
+        if domino :
+            return domino 
         else:
-            raise KeyError( 'invalid bone' )
+            raise KeyError( 'invalid domino ' )
 
 class Play( object ):
-    """A played bone in a particular trick."""
+    """A played domino  in a particular trick."""
 
-    def __init__( self, trick, id, player, bone, suit, trump ):
+    def __init__( self, trick, id, player, domino , suit, trump ):
         """Constructor."""
 
-        self.bone = bone
+        self.domino  = domino 
         self.id = id
         self.player = player
         self.role = 'unknown'
@@ -139,7 +138,7 @@ class Play( object ):
         """String representation."""
 
         return 'Play( r%d:t%d:p%d %r %s by %s )' % ( self.trick.round.id, self.trick.id,
-            self.id, self.bone, self.role, self.player )
+            self.id, self.domino , self.role, self.player )
 
 class Trick( object ):
     """A trick in a particular round."""
@@ -159,38 +158,38 @@ class Trick( object ):
     def __repr__( self ):
         """String representation."""
 
-        plays = ' '.join([ repr( play.bone ) for play in self.plays ])
+        plays = ' '.join([ repr( play.domino  ) for play in self.plays ])
         return 'Trick( r%d:t%d [ %s ] won by %s with %r for %dpt )' % ( self.round.id,
-            self.id, plays, self.winning_player, self.winning_play.bone, self.value )
+            self.id, plays, self.winning_player, self.winning_play.domino , self.value )
 
     def dump( self ):
-        return ' '.join([ repr( play.bone ) for play in self.plays ])
+        return ' '.join([ repr( play.domino  ) for play in self.plays ])
 
-    def play( self, player, bone ):
-        """Plays the specified bone in this trick."""
+    def play( self, player, domino  ):
+        """Plays the specified domino  in this trick."""
 
         # construct the play and associate it with the trick
-        suit, trump = self.round.bid.contract.identify( self, bone )
-        play = Play( self, len( self.plays ) + 1, player, bone, suit, trump )
+        suit, trump = self.round.bid.contract.identify( self, domino  )
+        play = Play( self, len( self.plays ) + 1, player, domino , suit, trump )
         self.plays.append( play )
 
         # determine the effects of the play
-        self.value += bone.value
-        if self.winning_play:                # If this NOT is the first bone in the trick, figure out if it is a winner
+        self.value += domino .value
+        if self.winning_play:                # If this NOT is the first domino in the trick, figure out if it is a winner
             self.round.bid.contract.adjudicate( self, player, play )
-            print 'bone is a %s' % play.role
-        else:                                # else, THIS is the winning play, by default, as it is the first bone in the trick
+            print('domino is a %s' % play.role)
+        else:                                # else, THIS is the winning play, by default, as it is the first domino in the trick
             play.role = 'suit'
             self.suit, self.winning_play, self.winning_player = play.suit, play, player
-            print 'trick suit is %s' % self.suit.identity
+            print('trick suit is %s' % self.suit.identity)
 
 class Round( object ):
     """A round in a particular game."""
 
-    def __init__( self, game, id, players, bid = None ):
+    def __init__( self, game, id, players: list[Player], bid = None ):
         """Constructor."""
     
-        self.bid = bid
+        self.bid: Bid = bid
         self.game = game
         self.hands = []
         self.id = id
@@ -223,7 +222,7 @@ class Round( object ):
         """Runs this round."""
 
         # deal a hand to each player, then collect the bids
-        print '%r vs. %r' % ( self.game.home, self.game.away )
+        print('%r vs. %r' % ( self.game.home, self.game.away ))
         self.deal()
         for player in self.players:
             bid = player.offer( self )
@@ -234,11 +233,11 @@ class Round( object ):
                 return None
             else:
                 for player in self.players:
-                    player.trick_evaluation = evaluate.playEvaluation(
+                    player.trick_evaluation = playEvaluation
 
         # identify the number of marks for this hand, then normalize the bid value
         target = self.bid.bid
-        if bid > 42:
+        if bid is int and bid > 42:
             self.marks, target = target / 42, 42
 
         # play tricks until the round is complete
@@ -260,11 +259,11 @@ class Round( object ):
             # associate the trick with this round and determine if the round is over
             self.tricks.append( trick )
             if self.points_made >= target:
-                print 'BID WAS MADE'
+                print('BID WAS MADE')
                 self.status = 'made'
                 break
             elif self.points_set >= ( 43 - target ):
-                print 'BID WAS SET'
+                print('BID WAS SET')
                 self.status = 'set'
                 break
 
