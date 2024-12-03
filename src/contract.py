@@ -1,8 +1,14 @@
+from __future__ import annotations
+from src.dominoes import Domino, Suit
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.gameplay import Player, Trick, Play
+
 
 class Bid( object ):
     """A bid."""
 
-    def __init__( self, player, contract, bid ):
+    def __init__( self, player: Player, contract: Contract, bid: Bid ):
         """Constructor."""
 
         self.bid = bid
@@ -12,21 +18,21 @@ class Bid( object ):
 class Contract( object ):
     """A contract."""
 
-    def adjudicate( self, trick, player, play ):
+    def adjudicate( self, trick: Trick, player: Player, play: Play ):
         """Determine the result of the specified play in the specified trick."""
 
-    def identify( self, trick, domino  ):
+    def identify( self, trick: Trick, domino: Domino ):
         """Identifies the suit and trump status of the specified domino  in the specified trick."""
 
 class TrumpContract( Contract ):
     """A trumps contract."""
 
-    def __init__( self, trump ):
+    def __init__( self, trump: Suit):
         """Constructor."""
 
         self.trump = trump
 
-    def adjudicate( self, trick, player, play ):
+    def adjudicate( self, trick: Trick, player: Player, play: Play ):
         """Determine the result of the specified play in the specified trick."""
 
         trump, winner = self.trump, trick.winning_play

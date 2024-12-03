@@ -1,4 +1,8 @@
-from src.dominoes import Suits
+from __future__ import annotations
+from src.dominoes import Suit, Suits
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.gameplay import Hand
 
 
 class Combination( object ):
@@ -50,11 +54,11 @@ class Fraction( object ):
 
 class playEvaluation( object ):
     ''' This obejct can be used by any player to calculate legal/winning plays from their hand '''
-    def __init__(self, trump):
+    def __init__(self, trump: Suit):
         self.trump = trump
         self.played = []   #Dominoes which are already out
 
-    def findLegalPlays(self, hand, suit):
+    def findLegalPlays(self, hand: Hand, suit: Suit):
         trickSuit = suit
         #find if we have any of the suit
         legalPlays = []
@@ -83,7 +87,7 @@ class playEvaluation( object ):
 
 
 class bidEvaluation( object ):
-    def __init__(self, hand, trump):
+    def __init__(self, hand: Hand, trump: Suit):
         self.hand = hand
         self.trump = trump
 

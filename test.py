@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 from src.gameplay import Game, Player, Team, Round
 
 alpha = Team( 'Alpha' )

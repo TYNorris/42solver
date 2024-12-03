@@ -4,7 +4,7 @@ from src.util import shuffle
 class Player( object ):
     """A player."""
 
-    def __init__( self, name ):
+    def __init__( self, name: str ):
         """Constructor."""
 
         self.name = name
@@ -18,7 +18,7 @@ class Player( object ):
 class Team( object ):
     """A team."""
 
-    def __init__( self, name, players ):
+    def __init__( self, name: str, players: list[Player] ):
         """Constructor."""
 
         self.name = name

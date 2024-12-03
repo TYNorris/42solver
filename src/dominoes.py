@@ -1,4 +1,5 @@
 
+from __future__ import annotations
 from src.util import shuffle
 
 Dominoes = {}
@@ -12,10 +13,10 @@ class Domino( object ):
         def __repr__( cls ):
             return "%s(%dpt)" % ( cls.__name__, cls.value )
 
-    double = False
-    identity = ()
+    double: bool = False
+    identity: tuple[int,int] = ()
     rank = {}
-    suits = ()
+    suits: tuple[Suit] = ()
     value = 0
     terms = ( 'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six' )
 
@@ -53,7 +54,7 @@ for t in range( 6, -1, -1 ):
         domino  = Dominoes[ ( t, b ) ] = Dominoes[ ( b, t ) ] = Domino.construct( t, b )
         Deck.append( domino  )
 
-def suit( suit):
+def suit( suit) -> Suit:
     """Constructs a suit implementation."""
 
     suit.dominoes = tuple([ Dominoes[ domino  ] for domino  in suit.dominoes ])
@@ -73,9 +74,9 @@ def suit( suit):
 class Suit( object ):
     """A suit."""
 
-    dominoes = ()
-    identity = None
-    value = None
+    dominoes: tuple[Domino] = ()
+    identity: str = None
+    value: int = None
 
     @classmethod
     def higher( cls, first, second ):

@@ -1,5 +1,6 @@
 
-from src.dominoes import RandomDeck, Suits, Dominoes
+from __future__ import annotations
+from src.dominoes import Domino, RandomDeck, Suits, Dominoes
 from src.contract import Bid, TrumpContract
 from src.util import reorder, shuffle
 from src.evaluate import *
@@ -7,14 +8,14 @@ from src.evaluate import *
 class Player( object ):
     """A player in a particular game."""
 
-    def __init__( self, team, name, controller ):
+    def __init__( self, team: Team, name: str, controller ):
         """Constructor."""
 
         self.controller = controller    #
-        self.hand = None                #
+        self.hand: Hand = None                #
         self.name = name                #  Name of player
         self.team = team                #
-        self.trick_evaluation = None    #  trick_evaluation object
+        self.trick_evaluation:playEvaluation = None    #  trick_evaluation object
 
     def __repr__( self ):
         return 'Player(%s)' % self.name
@@ -22,7 +23,7 @@ class Player( object ):
     def __str__( self ):
         return self.name
 
-    def offer( self, round ) -> Bid:
+    def offer( self, round: Round ) -> Bid:
         """Offer a bid for the specified round."""
 
         print('')
@@ -50,7 +51,7 @@ class Player( object ):
             trump = input( 'Trump: ' )
             return Bid( self, TrumpContract( Suits[ trump ] ), int( bid ) )
 
-    def play( self, trick ):
+    def play( self, trick: Trick ):
         """Plays a domino  in the specified trick."""
 
         print()
@@ -65,11 +66,11 @@ class Player( object ):
 class Team( object ):
     """A team in a particular game."""
 
-    def __init__( self, name ):
+    def __init__( self, name: str ):
         """Constructor."""
 
         self.name = name
-        self.players = []
+        self.players: list[Player] = []
 
     def __repr__( self ):
         return 'Team(%s: %s)' % ( self.name, ', '.join([ str( player ) for player in  self.players ]) )
@@ -85,7 +86,7 @@ class Team( object ):
         shuffle( players )
         return players
 
-    def add( self, name, controller ):
+    def add( self, name: str, controller ):
         """Adds a player to this team."""
 
         self.players.append( Player( self, name, controller ) )
@@ -93,11 +94,11 @@ class Team( object ):
 class Hand( object ):
     """A hand of Dominoes for a particular round."""
 
-    def __init__( self, round, player, hand ):
+    def __init__( self, round: Round, player: Player, hand: list[Domino] ):
         """Constructor."""
 
         self.dominoes = hand
-        self.hand = dict( ( domino .identity, domino  ) for domino  in hand )
+        self.hand = dict( ( domino.identity, domino  ) for domino  in hand )
         self.player = player
         self.round = round
 
@@ -107,11 +108,11 @@ class Hand( object ):
         Dominoes = ' '.join([ repr( domino  ) for domino  in self.dominoes ])
         return 'Hand( %s %s )' % ( self.player, Dominoes )
 
-    def dump( self ):
+    def dump( self ) -> str:
         """ Prints a String representation for the Dominoes left in the hand. """
         return ' '.join([ repr( domino  ) for domino  in self.hand ])
 
-    def play( self, identity ):
+    def play( self, identity ) -> Domino:
         """Plays a domino  from this hand."""
 
         domino  = self.hand.pop( identity, None )
@@ -123,7 +124,7 @@ class Hand( object ):
 class Play( object ):
     """A played domino  in a particular trick."""
 
-    def __init__( self, trick, id, player, domino , suit, trump ):
+    def __init__( self, trick: Trick, id: int, player: Player, domino: Domino, suit: Suit, trump: Suit ):
         """Constructor."""
 
         self.domino  = domino 
@@ -165,7 +166,7 @@ class Trick( object ):
     def dump( self ):
         return ' '.join([ repr( play.domino  ) for play in self.plays ])
 
-    def play( self, player, domino  ):
+    def play( self, player: Player, domino: Domino  ):
         """Plays the specified domino  in this trick."""
 
         # construct the play and associate it with the trick
@@ -186,7 +187,7 @@ class Trick( object ):
 class Round( object ):
     """A round in a particular game."""
 
-    def __init__( self, game, id, players: list[Player], bid = None ):
+    def __init__( self, game: Game, id: int, players: list[Player], bid = None ):
         """Constructor."""
     
         self.bid: Bid = bid
@@ -201,12 +202,12 @@ class Round( object ):
         self.tricks = []
 
     @property
-    def points_to_make( self ):
+    def points_to_make( self ) -> int:
         """Indicates the points remaining for this bid to be made."""
         return self.bid.bid - self.points_made
 
     @property
-    def points_to_set( self ):
+    def points_to_set( self ) -> int:
         """Indicates the points remaining for this bid to be set."""
         return ( 43 - self.bid.bid ) - self.points_set
 
@@ -272,16 +273,16 @@ class Game( object ):
 
     DefaultDeck = RandomDeck
 
-    def __init__( self, home, away, deck = None, players = None ):
+    def __init__( self, home: Team, away: Team, deck = None, players: list[Player] = None ):
         """Constructor."""
 
         self.away = away
         self.deck = deck or self.DefaultDeck()
         self.home = home
         self.players = players or self.seat( home, away )
-        self.rounds = []
+        self.rounds: list[Round] = []
 
-    def seat( self, home, away ):
+    def seat( self, home, away ) -> list[Player]:
         """Determines a suitable seating order for the specified teams."""
 
         # shuffle the set of players for this game
