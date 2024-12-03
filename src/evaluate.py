@@ -1,5 +1,5 @@
 from __future__ import annotations
-from src.dominoes import Suit, Suits
+from src.dominoes import Domino, Suit, Suits
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.gameplay import Hand
@@ -58,26 +58,26 @@ class playEvaluation( object ):
         self.trump = trump
         self.played = []   #Dominoes which are already out
 
-    def findLegalPlays(self, hand: Hand, suit: Suit):
+    def findLegalPlays(self, hand: Hand, suit: Suit) -> list[Domino]:
+        options = list(hand.hand.values())
         trickSuit = suit
+        if trickSuit is None: 
+            print (' - no suit selected')
+            return options
+        
         #find if we have any of the suit
         legalPlays = []
-        #If suit is NOT trump
-        if (self.trump.value != trickSuit.value):
-            for b in hand:
-                if trickSuit.includes(b) and not(self.trump.includes(b)):
-                    legalPlays.append(b)
-            # If we don't have any dominoes of the suit, we can play trump, so look for trump
-            if len(legalPlays) == 0:
-                for b in hand:
-                    if self.trump.includes(b):
-                        legalPlays.append(b)
-        else:
-            for b in hand:
-                if self.trump.includes(b):
-                    legalPlays.append(b)
+    
+        for b in options:
+            if trickSuit.includes(b):
+                legalPlays.append(b)
 
-        return self.self.legalPlays
+        # If we don't have any dominoes of the suit, we can play anything
+        if len(legalPlays) == 0:
+            print(' - none in suit')
+            return options
+        
+        return legalPlays
 
     def findWinningPlays(self, suit):
         trickSuit = suit

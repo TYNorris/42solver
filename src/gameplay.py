@@ -58,7 +58,14 @@ class Player( object ):
         print('trick is: %s' % ( trick.dump() ))
         print('%s has: %s' % ( self.name, self.hand.dump() ))
 
-        identity = eval( input( 'Play: ' ) )
+        legalPlays = self.trick_evaluation.findLegalPlays(self.hand, trick.suit)
+        print(f'legal moves: {legalPlays}')
+
+        if(len(legalPlays) > 1):
+            identity = eval( input( 'Play: ' ) )
+        else:
+            print( 'Only one play - choosing automatically')
+            identity = legalPlays[0].identity
 
         domino  = self.hand.play( identity )
         return domino        
@@ -178,7 +185,7 @@ class Trick( object ):
         self.value += domino .value
         if self.winning_play:                # If this NOT is the first domino in the trick, figure out if it is a winner
             self.round.bid.contract.adjudicate( self, player, play )
-            print('domino is a %s' % play.role)
+            print('- domino is a %s' % play.role)
         else:                                # else, THIS is the winning play, by default, as it is the first domino in the trick
             play.role = 'suit'
             self.suit, self.winning_play, self.winning_player = play.suit, play, player
@@ -234,7 +241,7 @@ class Round( object ):
                 return None
             else:
                 for player in self.players:
-                    player.trick_evaluation = playEvaluation
+                    player.trick_evaluation = playEvaluation(self.bid.contract.trump)
 
         # identify the number of marks for this hand, then normalize the bid value
         target = self.bid.bid
